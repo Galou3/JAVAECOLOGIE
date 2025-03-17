@@ -80,12 +80,26 @@ Une fois l'application lancée, vous pouvez interagir avec l'API via les endpoin
 ### Exemple de requête
 ```bash
 curl localhost:8080/tree
+
+curl -X POST \
+  http://localhost:8080/tree \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "birth": "2020-03-15",
+    "exposure": "SHADOW",
+    "species": "OAK",
+    "carbonStorageCapacity": 35.5
+  }'
+
+curl -X PUT \
+  http://localhost:8080/tree/{ID} \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "birth": "2020-01-15",
+    "exposure": "SHADOW",
+    "species": "FIR",
+    "carbonStorageCapacity": 30.5
+  }'
+  
+  curl http://localhost:8080/tree/{ID}
 ```
-
-## Améliorations possibles
-
-Cette application pourrait être enrichie avec :
-- La prise en compte de l'âge des arbres dans le calcul d'absorption
-- La modélisation des activités humaines (coupes de forêts, reforestation, etc.)
-- L'intégration de données météorologiques pour affiner les calculs d'absorption
-- Une interface utilisateur pour visualiser les forêts et leur impact environnemental

@@ -72,33 +72,75 @@ public class TreeController implements TreeApi {
 <span class="fc" id="L72">                .orElse(ResponseEntity.notFound().build());</span>
     }
 
-
+    @Override
+    public ResponseEntity&lt;org.forest.api.model.Tree&gt; updateTree(String id, TreeInput treeInput) {
+        // Convertir l'ID string en UUID
+<span class="nc" id="L78">        Optional&lt;UUID&gt; optionalUUID = getOptionalUUID(id);</span>
+        
+<span class="nc bnc" id="L80" title="All 2 branches missed.">        if (optionalUUID.isEmpty()) {</span>
+<span class="nc" id="L81">            return ResponseEntity.badRequest().build();</span>
+        }
+        
+<span class="nc" id="L84">        UUID uuid = optionalUUID.get();</span>
+        
+        try {
+            // Vérifier que l'arbre existe
+<span class="nc" id="L88">            Optional&lt;org.forest.domain.model.Tree&gt; existingTree = treeService.get(uuid);</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">            if (existingTree.isEmpty()) {</span>
+<span class="nc" id="L90">                return ResponseEntity.notFound().build();</span>
+            }
+            
+            // Convertir le TreeInput en Tree du domaine
+<span class="nc" id="L94">            org.forest.domain.model.Tree domainTree = mapToDomain(treeInput);</span>
+            
+            // Créer un nouvel arbre avec l'UUID existant
+<span class="nc" id="L97">            org.forest.domain.model.Tree treeToUpdate = new org.forest.domain.model.Tree(</span>
+                uuid,
+<span class="nc" id="L99">                domainTree.birth(),</span>
+<span class="nc" id="L100">                domainTree.species(),</span>
+<span class="nc" id="L101">                domainTree.exposure(),</span>
+<span class="nc" id="L102">                domainTree.carbonStorageCapacity()</span>
+            );
+            
+            // Mettre à jour l'arbre
+<span class="nc" id="L106">            org.forest.domain.model.Tree updatedTree = treeService.update(treeToUpdate);</span>
+            
+            // Convertir l'arbre mis à jour en DTO et retourner la réponse
+<span class="nc" id="L109">            return ResponseEntity.ok(map(updatedTree));</span>
+<span class="nc" id="L110">        } catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L111">            logger.error(&quot;Error updating tree&quot;, e);</span>
+<span class="nc" id="L112">            return ResponseEntity.badRequest().build();</span>
+<span class="nc" id="L113">        } catch (Exception e) {</span>
+<span class="nc" id="L114">            logger.error(&quot;Unexpected error updating tree&quot;, e);</span>
+<span class="nc" id="L115">            return ResponseEntity.internalServerError().build();</span>
+        }
+    }
 
     private Optional&lt;UUID&gt; getOptionalUUID(String uuid) {
         try {
-<span class="fc" id="L79">            return Optional.of(UUID.fromString(uuid));</span>
-<span class="nc" id="L80">        } catch (IllegalArgumentException e) {</span>
-<span class="nc" id="L81">            logger.error(&quot;Error while parsing UUID&quot;, e);</span>
-<span class="nc" id="L82">            return Optional.empty();</span>
+<span class="fc" id="L121">            return Optional.of(UUID.fromString(uuid));</span>
+<span class="nc" id="L122">        } catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L123">            logger.error(&quot;Error while parsing UUID&quot;, e);</span>
+<span class="nc" id="L124">            return Optional.empty();</span>
         }
     }
 
     private Tree mapToDomain(TreeInput treeInput) {
-<span class="nc" id="L87">        return new Tree(null, // L'ID sera généré lors de la sauvegarde</span>
-<span class="nc" id="L88">                treeInput.getBirth(),</span>
-<span class="nc" id="L89">                Species.valueOf(treeInput.getSpecies().getValue()),</span>
-<span class="nc" id="L90">                Exposure.valueOf(treeInput.getExposure().getValue()),</span>
-<span class="nc" id="L91">                treeInput.getCarbonStorageCapacity()</span>
+<span class="nc" id="L129">        return new Tree(null, // L'ID sera généré lors de la sauvegarde</span>
+<span class="nc" id="L130">                treeInput.getBirth(),</span>
+<span class="nc" id="L131">                Species.valueOf(treeInput.getSpecies().getValue()),</span>
+<span class="nc" id="L132">                Exposure.valueOf(treeInput.getExposure().getValue()),</span>
+<span class="nc" id="L133">                treeInput.getCarbonStorageCapacity()</span>
         );
     }
 
     private org.forest.api.model.Tree map(Tree modelTree) {
-<span class="fc" id="L96">        return new org.forest.api.model.Tree()</span>
-<span class="fc" id="L97">                .id(modelTree.id())</span>
-<span class="fc" id="L98">                .birth(modelTree.birth())</span>
-<span class="fc" id="L99">                .species(org.forest.api.model.Species.valueOf(modelTree.species().name()))</span>
-<span class="fc" id="L100">                .exposure(org.forest.api.model.Exposure.valueOf(modelTree.exposure().name()))</span>
-<span class="fc" id="L101">                .carbonStorageCapacity(modelTree.carbonStorageCapacity());</span>
+<span class="fc" id="L138">        return new org.forest.api.model.Tree()</span>
+<span class="fc" id="L139">                .id(modelTree.id())</span>
+<span class="fc" id="L140">                .birth(modelTree.birth())</span>
+<span class="fc" id="L141">                .species(org.forest.api.model.Species.valueOf(modelTree.species().name()))</span>
+<span class="fc" id="L142">                .exposure(org.forest.api.model.Exposure.valueOf(modelTree.exposure().name()))</span>
+<span class="fc" id="L143">                .carbonStorageCapacity(modelTree.carbonStorageCapacity());</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

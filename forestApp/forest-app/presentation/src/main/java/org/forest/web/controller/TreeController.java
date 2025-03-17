@@ -72,7 +72,49 @@ public class TreeController implements TreeApi {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-
+    @Override
+    public ResponseEntity<org.forest.api.model.Tree> updateTree(String id, TreeInput treeInput) {
+        // Convertir l'ID string en UUID
+        Optional<UUID> optionalUUID = getOptionalUUID(id);
+        
+        if (optionalUUID.isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+        
+        UUID uuid = optionalUUID.get();
+        
+        try {
+            // Vérifier que l'arbre existe
+            Optional<org.forest.domain.model.Tree> existingTree = treeService.get(uuid);
+            if (existingTree.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            // Convertir le TreeInput en Tree du domaine
+            org.forest.domain.model.Tree domainTree = mapToDomain(treeInput);
+            
+            // Créer un nouvel arbre avec l'UUID existant
+            org.forest.domain.model.Tree treeToUpdate = new org.forest.domain.model.Tree(
+                uuid,
+                domainTree.birth(),
+                domainTree.species(),
+                domainTree.exposure(),
+                domainTree.carbonStorageCapacity()
+            );
+            
+            // Mettre à jour l'arbre
+            org.forest.domain.model.Tree updatedTree = treeService.update(treeToUpdate);
+            
+            // Convertir l'arbre mis à jour en DTO et retourner la réponse
+            return ResponseEntity.ok(map(updatedTree));
+        } catch (IllegalArgumentException e) {
+            logger.error("Error updating tree", e);
+            return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            logger.error("Unexpected error updating tree", e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
 
     private Optional<UUID> getOptionalUUID(String uuid) {
         try {
