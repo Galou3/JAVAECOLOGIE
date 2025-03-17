@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TreeService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">domain</a> &gt; <a href="index.source.html" class="el_package">org.forest.domain.service</a> &gt; <span class="el_source">TreeService.java</span></div><h1>TreeService.java</h1><pre class="source lang-java linenums">package org.forest.domain.service;
+
+import org.forest.domain.model.Tree;
+import org.forest.port.driven.TreeRepositoryPort;
+import org.forest.port.driving.TreeUseCase;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+@Component
+public class TreeService implements TreeUseCase {
+    private TreeRepositoryPort treeRepository;
+
+    @Autowired
+<span class="fc" id="L18">    public TreeService(TreeRepositoryPort treeRepository) {</span>
+<span class="fc" id="L19">        this.treeRepository = treeRepository;</span>
+<span class="fc" id="L20">    }</span>
+
+    @Override
+    public Optional&lt;Tree&gt; get(UUID uuid) {
+<span class="fc" id="L24">        return treeRepository.findById(uuid);</span>
+    }
+
+    @Override
+    public List&lt;Tree&gt; list() {
+<span class="nc" id="L29">        return treeRepository.findAll();</span>
+    }
+
+    @Override
+    public Tree save(Tree tree) {
+<span class="nc" id="L34">        validateTree(tree);</span>
+<span class="nc" id="L35">        return treeRepository.insert(tree);</span>
+    }
+    
+    @Override
+    public Tree update(Tree tree) {
+<span class="nc" id="L40">        validateTree(tree);</span>
+        
+        // Vérifier que l'arbre existe
+<span class="nc bnc" id="L43" title="All 4 branches missed.">        if (tree.id() == null || treeRepository.findById(tree.id()).isEmpty()) {</span>
+<span class="nc" id="L44">            throw new IllegalArgumentException(&quot;L'arbre à mettre à jour n'existe pas&quot;);</span>
+        }
+        
+<span class="nc" id="L47">        return treeRepository.update(tree);</span>
+    }
+    
+    @Override
+    public void delete(UUID uuid) {
+<span class="nc" id="L52">        treeRepository.delete(uuid);</span>
+<span class="nc" id="L53">    }</span>
+    
+    private void validateTree(Tree tree) {
+<span class="nc bnc" id="L56" title="All 2 branches missed.">        if (tree.birth() == null) {</span>
+<span class="nc" id="L57">            throw new IllegalArgumentException(&quot;Birth is required&quot;);</span>
+        }
+        
+<span class="nc bnc" id="L60" title="All 2 branches missed.">        if (tree.species() == null) {</span>
+<span class="nc" id="L61">            throw new IllegalArgumentException(&quot;Species is required&quot;);</span>
+        }
+        
+<span class="nc bnc" id="L64" title="All 2 branches missed.">        if (tree.exposure() == null) {</span>
+<span class="nc" id="L65">            throw new IllegalArgumentException(&quot;Exposure is required&quot;);</span>
+        }
+        
+<span class="nc bnc" id="L68" title="All 2 branches missed.">        if (tree.carbonStorageCapacity() &lt;= 0) {</span>
+<span class="nc" id="L69">            throw new IllegalArgumentException(&quot;Carbon storage capacity must be positive&quot;);</span>
+        }
+<span class="nc" id="L71">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

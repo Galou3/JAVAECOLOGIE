@@ -1,0 +1,3 @@
+rootProject.name = 'forest'
+
+include 'forest-app:domain', 'forest-app:presentation', 'forest-app:infrastructure', 'forest-app:api', 'forest-app:application'

@@ -1,0 +1,17 @@
+apply from: "${rootDir}/gradle/backend-java.gradle"
+apply plugin: 'org.springframework.boot'
+
+bootJar {
+    mainClass="org.forest.add.ForestApplication"
+}
+
+dependencies{
+    api(project(":forest-app:domain"))
+    api(project(":forest-app:infrastructure"))
+    api(project(":forest-app:presentation"))
+    implementation('org.springframework.boot:spring-boot-starter-web')
+
+    testImplementation("org.springframework.boot:spring-boot-starter-test") {
+        exclude group: "junit"
+    }
+}

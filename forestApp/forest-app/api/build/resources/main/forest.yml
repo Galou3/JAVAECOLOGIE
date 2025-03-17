@@ -1,0 +1,378 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Forest api
+  license:
+    name: MIT
+servers:
+  - url: http://localhost:8080
+paths:
+  /tree:
+    get:
+      summary: List all trees
+      operationId: listTrees
+      tags:
+        - tree
+      responses:
+        '200':
+          description: A tree list was found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Tree"
+    post:
+      summary: Create a new tree
+      operationId: createTree
+      tags:
+        - tree
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TreeInput"
+      responses:
+        '201':
+          description: Tree created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tree"
+
+  /tree/{id}:
+    get:
+      summary: Info for a tree
+      operationId: getTree
+      tags:
+        - tree
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The tree id
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A tree was found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tree"
+    put:
+      summary: Update a tree
+      operationId: updateTree
+      tags:
+        - tree
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The tree id
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TreeInput"
+      responses:
+        '200':
+          description: Tree updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Tree"
+    delete:
+      summary: Delete a tree
+      operationId: deleteTree
+      tags:
+        - tree
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The tree id
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Tree deleted
+
+  /forest:
+    get:
+      summary: List all forests
+      operationId: listForests
+      tags:
+        - forest
+      responses:
+        '200':
+          description: A forest list was found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Forest"
+    post:
+      summary: Create a new forest
+      operationId: createForest
+      tags:
+        - forest
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ForestInput"
+      responses:
+        '201':
+          description: Forest created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Forest"
+
+  /forest/{id}:
+    get:
+      summary: Info for a forest
+      operationId: getForest
+      tags:
+        - forest
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The forest id
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A forest was found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Forest"
+    put:
+      summary: Update a forest
+      operationId: updateForest
+      tags:
+        - forest
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The forest id
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ForestInput"
+      responses:
+        '200':
+          description: Forest updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Forest"
+    delete:
+      summary: Delete a forest
+      operationId: deleteForest
+      tags:
+        - forest
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The forest id
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Forest deleted
+          
+  /forest/{id}/species:
+    get:
+      summary: Get all tree species in a forest
+      operationId: getForestSpecies
+      tags:
+        - forest
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The forest id
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of species found
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Species"
+                  
+  /forest/{id}/absorption:
+    get:
+      summary: Calculate CO2 absorption for a forest
+      operationId: getForestAbsorption
+      tags:
+        - absorption
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The forest id
+          schema:
+            type: string
+      responses:
+        '200':
+          description: CO2 absorption calculated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AbsorptionResult"
+                
+  /absorption/required-surface:
+    get:
+      summary: Calculate required forest surface for CO2 absorption
+      operationId: getRequiredSurface
+      tags:
+        - absorption
+      parameters:
+        - name: co2Amount
+          in: query
+          required: true
+          description: Amount of CO2 to absorb (kg/year)
+          schema:
+            type: number
+            format: double
+      responses:
+        '200':
+          description: Required surface calculated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SurfaceResult"
+
+components:
+  schemas:
+    Species:
+      enum:
+        - OAK
+        - EVERGREEN_OAK
+        - FIR
+        - ASH
+        - BEECH
+    Exposure:
+      enum:
+        - SUNNY
+        - MID_SHADOW
+        - SHADOW
+    ForestType:
+      enum:
+        - BOREAL
+        - TEMPERATE
+        - TROPICAL
+    Tree:
+      required:
+        - id
+        - birth
+        - species
+        - exposure
+        - carbonStorageCapacity
+      properties:
+        id:
+          type: string
+          format: uuid
+        birth:
+          type: string
+          format: date
+        exposure:
+          $ref: '#/components/schemas/Exposure'
+        species:
+          $ref: '#/components/schemas/Species'
+        carbonStorageCapacity:
+          type: number
+          format: double
+    TreeInput:
+      required:
+        - birth
+        - species
+        - exposure
+        - carbonStorageCapacity
+      properties:
+        birth:
+          type: string
+          format: date
+        exposure:
+          $ref: '#/components/schemas/Exposure'
+        species:
+          $ref: '#/components/schemas/Species'
+        carbonStorageCapacity:
+          type: number
+          format: double
+    Forest:
+      required:
+        - id
+        - type
+        - trees
+        - surface
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          $ref: '#/components/schemas/ForestType'
+        trees:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tree'
+        surface:
+          type: number
+          format: double
+    ForestInput:
+      required:
+        - type
+        - trees
+        - surface
+      properties:
+        type:
+          $ref: '#/components/schemas/ForestType'
+        trees:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tree'
+        surface:
+          type: number
+          format: double
+    AbsorptionResult:
+      required:
+        - forestId
+        - absorptionKgPerYear
+      properties:
+        forestId:
+          type: string
+          format: uuid
+        absorptionKgPerYear:
+          type: number
+          format: double
+    SurfaceResult:
+      required:
+        - co2Amount
+        - requiredSurfaceSqMeters
+      properties:
+        co2Amount:
+          type: number
+          format: double
+        requiredSurfaceSqMeters:
+          type: number
+          format: double

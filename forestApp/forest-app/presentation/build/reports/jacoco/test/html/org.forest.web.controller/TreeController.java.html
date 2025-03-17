@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TreeController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">presentation</a> &gt; <a href="index.source.html" class="el_package">org.forest.web.controller</a> &gt; <span class="el_source">TreeController.java</span></div><h1>TreeController.java</h1><pre class="source lang-java linenums">package org.forest.web.controller;
+
+import org.forest.api.controller.TreeApi;
+import org.forest.api.model.TreeInput;
+import org.forest.domain.model.Tree;
+import org.forest.domain.model.Species;
+import org.forest.domain.model.Exposure;
+import org.forest.port.driving.TreeUseCase;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+/**
+ * Contrôleur REST pour les opérations sur les arbres
+ */
+@CrossOrigin(origins = &quot;*&quot;)
+@RestController
+@RequestMapping
+public class TreeController implements TreeApi {
+<span class="fc" id="L30">    private final Logger logger = LoggerFactory.getLogger(TreeController.class);</span>
+
+    private TreeUseCase treeService;
+
+    @Autowired
+<span class="fc" id="L35">    public TreeController(TreeUseCase treeUseCase) {</span>
+<span class="fc" id="L36">        this.treeService = treeUseCase;</span>
+<span class="fc" id="L37">    }</span>
+
+    @Override
+    public ResponseEntity&lt;org.forest.api.model.Tree&gt; createTree(TreeInput treeInput) {
+<span class="nc" id="L41">        Tree domainTree = mapToDomain(treeInput);</span>
+<span class="nc" id="L42">        Tree savedTree = treeService.save(domainTree);</span>
+<span class="nc" id="L43">        return new ResponseEntity&lt;&gt;(map(savedTree), HttpStatus.CREATED);</span>
+    }
+
+    @Override
+    public ResponseEntity&lt;Void&gt; deleteTree(String id) {
+<span class="nc" id="L48">        return getOptionalUUID(id)</span>
+<span class="nc" id="L49">                .map(uuid -&gt; {</span>
+                    try {
+<span class="nc" id="L51">                        treeService.delete(uuid);</span>
+<span class="nc" id="L52">                        return new ResponseEntity&lt;Void&gt;(HttpStatus.NO_CONTENT);</span>
+<span class="nc" id="L53">                    } catch (Exception e) {</span>
+<span class="nc" id="L54">                        logger.error(&quot;Error deleting tree&quot;, e);</span>
+<span class="nc" id="L55">                        return new ResponseEntity&lt;Void&gt;(HttpStatus.INTERNAL_SERVER_ERROR);</span>
+                    }
+                })
+<span class="nc" id="L58">                .orElse(new ResponseEntity&lt;&gt;(HttpStatus.NOT_FOUND));</span>
+    }
+
+    @Override
+    public ResponseEntity&lt;List&lt;org.forest.api.model.Tree&gt;&gt; listTrees() {
+<span class="nc" id="L63">        return ResponseEntity.ok(treeService.list().stream().map(this::map).collect(Collectors.toList()));</span>
+    }
+
+    @Override
+    public ResponseEntity&lt;org.forest.api.model.Tree&gt; getTree(String id) {
+<span class="fc" id="L68">        return getOptionalUUID(id)</span>
+<span class="fc" id="L69">                .flatMap(treeService::get)</span>
+<span class="fc" id="L70">                .map(this::map)</span>
+<span class="fc" id="L71">                .map(ResponseEntity::ok)</span>
+<span class="fc" id="L72">                .orElse(ResponseEntity.notFound().build());</span>
+    }
+
+
+
+    private Optional&lt;UUID&gt; getOptionalUUID(String uuid) {
+        try {
+<span class="fc" id="L79">            return Optional.of(UUID.fromString(uuid));</span>
+<span class="nc" id="L80">        } catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L81">            logger.error(&quot;Error while parsing UUID&quot;, e);</span>
+<span class="nc" id="L82">            return Optional.empty();</span>
+        }
+    }
+
+    private Tree mapToDomain(TreeInput treeInput) {
+<span class="nc" id="L87">        return new Tree(null, // L'ID sera généré lors de la sauvegarde</span>
+<span class="nc" id="L88">                treeInput.getBirth(),</span>
+<span class="nc" id="L89">                Species.valueOf(treeInput.getSpecies().getValue()),</span>
+<span class="nc" id="L90">                Exposure.valueOf(treeInput.getExposure().getValue()),</span>
+<span class="nc" id="L91">                treeInput.getCarbonStorageCapacity()</span>
+        );
+    }
+
+    private org.forest.api.model.Tree map(Tree modelTree) {
+<span class="fc" id="L96">        return new org.forest.api.model.Tree()</span>
+<span class="fc" id="L97">                .id(modelTree.id())</span>
+<span class="fc" id="L98">                .birth(modelTree.birth())</span>
+<span class="fc" id="L99">                .species(org.forest.api.model.Species.valueOf(modelTree.species().name()))</span>
+<span class="fc" id="L100">                .exposure(org.forest.api.model.Exposure.valueOf(modelTree.exposure().name()))</span>
+<span class="fc" id="L101">                .carbonStorageCapacity(modelTree.carbonStorageCapacity());</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ForestController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">presentation</a> &gt; <a href="index.source.html" class="el_package">org.forest.web.controller</a> &gt; <span class="el_source">ForestController.java</span></div><h1>ForestController.java</h1><pre class="source lang-java linenums">package org.forest.web.controller;
+
+import org.forest.api.controller.ForestApi;
+import org.forest.api.model.Forest;
+import org.forest.api.model.ForestInput;
+import org.forest.api.model.Species;
+import org.forest.port.driving.ForestUseCase;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+@CrossOrigin(origins = &quot;*&quot;)
+@RestController
+@RequestMapping
+public class ForestController implements ForestApi {
+<span class="nc" id="L27">    private final Logger logger = LoggerFactory.getLogger(ForestController.class);</span>
+
+    private final ForestUseCase forestService;
+
+    @Autowired
+<span class="nc" id="L32">    public ForestController(ForestUseCase forestService) {</span>
+<span class="nc" id="L33">        this.forestService = forestService;</span>
+<span class="nc" id="L34">    }</span>
+
+    @Override
+    public ResponseEntity&lt;Forest&gt; createForest(ForestInput forestInput) {
+<span class="nc" id="L38">        org.forest.domain.model.Forest domainForest = mapToDomain(forestInput);</span>
+<span class="nc" id="L39">        org.forest.domain.model.Forest savedForest = forestService.save(domainForest);</span>
+<span class="nc" id="L40">        return new ResponseEntity&lt;&gt;(mapToApi(savedForest), HttpStatus.CREATED);</span>
+    }
+
+    @Override
+    public ResponseEntity&lt;Void&gt; deleteForest(String id) {
+<span class="nc" id="L45">        return getOptionalUUID(id)</span>
+<span class="nc" id="L46">                .map(uuid -&gt; {</span>
+<span class="nc" id="L47">                    forestService.delete(uuid);</span>
+<span class="nc" id="L48">                    return new ResponseEntity&lt;Void&gt;(HttpStatus.NO_CONTENT);</span>
+                })
+<span class="nc" id="L50">                .orElse(new ResponseEntity&lt;&gt;(HttpStatus.NOT_FOUND));</span>
+    }
+
+    @Override
+    public ResponseEntity&lt;Forest&gt; getForest(String id) {
+<span class="nc" id="L55">        return getOptionalUUID(id)</span>
+<span class="nc" id="L56">                .flatMap(forestService::get)</span>
+<span class="nc" id="L57">                .map(this::mapToApi)</span>
+<span class="nc" id="L58">                .map(ResponseEntity::ok)</span>
+<span class="nc" id="L59">                .orElse(ResponseEntity.notFound().build());</span>
+    }
+
+    @Override
+    public ResponseEntity&lt;List&lt;Species&gt;&gt; getForestSpecies(String id) {
+<span class="nc" id="L64">        return getOptionalUUID(id)</span>
+<span class="nc" id="L65">                .map(uuid -&gt; {</span>
+<span class="nc" id="L66">                    Set&lt;org.forest.domain.model.Species&gt; speciesSet = forestService.getSpecies(uuid);</span>
+<span class="nc" id="L67">                    List&lt;Species&gt; apiSpecies = speciesSet.stream()</span>
+<span class="nc" id="L68">                            .map(s -&gt; Species.valueOf(s.name()))</span>
+<span class="nc" id="L69">                            .collect(Collectors.toList());</span>
+<span class="nc" id="L70">                    return ResponseEntity.ok(apiSpecies);</span>
+                })
+<span class="nc" id="L72">                .orElse(ResponseEntity.notFound().build());</span>
+    }
+
+    @Override
+    public ResponseEntity&lt;List&lt;Forest&gt;&gt; listForests() {
+<span class="nc" id="L77">        List&lt;Forest&gt; forests = forestService.list().stream()</span>
+<span class="nc" id="L78">                .map(this::mapToApi)</span>
+<span class="nc" id="L79">                .collect(Collectors.toList());</span>
+<span class="nc" id="L80">        return ResponseEntity.ok(forests);</span>
+    }
+
+    @Override
+    public ResponseEntity&lt;Forest&gt; updateForest(String id, ForestInput forestInput) {
+<span class="nc" id="L85">        return getOptionalUUID(id)</span>
+<span class="nc" id="L86">                .flatMap(forestService::get)</span>
+<span class="nc" id="L87">                .map(existingForest -&gt; {</span>
+<span class="nc" id="L88">                    org.forest.domain.model.Forest toUpdate = new org.forest.domain.model.Forest(</span>
+<span class="nc" id="L89">                            existingForest.id(),</span>
+<span class="nc" id="L90">                            mapForestType(forestInput.getType().getValue()),</span>
+<span class="nc" id="L91">                            mapTrees(forestInput.getTrees()),</span>
+<span class="nc" id="L92">                            forestInput.getSurface()</span>
+                    );
+<span class="nc" id="L94">                    org.forest.domain.model.Forest updated = forestService.update(toUpdate);</span>
+<span class="nc" id="L95">                    return ResponseEntity.ok(mapToApi(updated));</span>
+                })
+<span class="nc" id="L97">                .orElse(ResponseEntity.notFound().build());</span>
+    }
+
+    private Optional&lt;UUID&gt; getOptionalUUID(String uuid) {
+        try {
+<span class="nc" id="L102">            return Optional.of(UUID.fromString(uuid));</span>
+<span class="nc" id="L103">        } catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L104">            logger.error(&quot;Error while parsing UUID&quot;, e);</span>
+<span class="nc" id="L105">            return Optional.empty();</span>
+        }
+    }
+
+    private org.forest.domain.model.Forest mapToDomain(ForestInput forestInput) {
+<span class="nc" id="L110">        return new org.forest.domain.model.Forest(</span>
+                null, // L'ID sera généré par le repository
+<span class="nc" id="L112">                mapForestType(forestInput.getType().getValue()),</span>
+<span class="nc" id="L113">                mapTrees(forestInput.getTrees()),</span>
+<span class="nc" id="L114">                forestInput.getSurface()</span>
+        );
+    }
+
+    private List&lt;org.forest.domain.model.Tree&gt; mapTrees(List&lt;org.forest.api.model.Tree&gt; trees) {
+<span class="nc" id="L119">        return trees.stream()</span>
+<span class="nc" id="L120">                .map(this::mapTree)</span>
+<span class="nc" id="L121">                .collect(Collectors.toList());</span>
+    }
+
+    private org.forest.domain.model.Tree mapTree(org.forest.api.model.Tree apiTree) {
+<span class="nc" id="L125">        return new org.forest.domain.model.Tree(</span>
+<span class="nc" id="L126">                apiTree.getId(),</span>
+<span class="nc" id="L127">                apiTree.getBirth(),</span>
+<span class="nc" id="L128">                org.forest.domain.model.Species.valueOf(apiTree.getSpecies().getValue()),</span>
+<span class="nc" id="L129">                org.forest.domain.model.Exposure.valueOf(apiTree.getExposure().getValue()),</span>
+<span class="nc" id="L130">                apiTree.getCarbonStorageCapacity()</span>
+        );
+    }
+
+    private org.forest.domain.model.ForestType mapForestType(String type) {
+<span class="nc" id="L135">        return org.forest.domain.model.ForestType.valueOf(type);</span>
+    }
+
+    private Forest mapToApi(org.forest.domain.model.Forest domainForest) {
+<span class="nc" id="L139">        Forest apiForest = new Forest();</span>
+<span class="nc" id="L140">        apiForest.setId(domainForest.id());</span>
+<span class="nc" id="L141">        apiForest.setType(org.forest.api.model.ForestType.valueOf(domainForest.type().name()));</span>
+<span class="nc" id="L142">        apiForest.setSurface(domainForest.surface());</span>
+        
+<span class="nc" id="L144">        List&lt;org.forest.api.model.Tree&gt; apiTrees = domainForest.trees().stream()</span>
+<span class="nc" id="L145">                .map(this::mapToApiTree)</span>
+<span class="nc" id="L146">                .collect(Collectors.toList());</span>
+<span class="nc" id="L147">        apiForest.setTrees(apiTrees);</span>
+        
+<span class="nc" id="L149">        return apiForest;</span>
+    }
+
+    private org.forest.api.model.Tree mapToApiTree(org.forest.domain.model.Tree domainTree) {
+<span class="nc" id="L153">        org.forest.api.model.Tree apiTree = new org.forest.api.model.Tree();</span>
+<span class="nc" id="L154">        apiTree.setId(domainTree.id());</span>
+<span class="nc" id="L155">        apiTree.setBirth(domainTree.birth());</span>
+<span class="nc" id="L156">        apiTree.setSpecies(org.forest.api.model.Species.valueOf(domainTree.species().name()));</span>
+<span class="nc" id="L157">        apiTree.setExposure(org.forest.api.model.Exposure.valueOf(domainTree.exposure().name()));</span>
+<span class="nc" id="L158">        apiTree.setCarbonStorageCapacity(domainTree.carbonStorageCapacity());</span>
+<span class="nc" id="L159">        return apiTree;</span>
+    }
+} 
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>

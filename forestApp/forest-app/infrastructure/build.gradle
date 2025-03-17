@@ -1,0 +1,7 @@
+apply from: "${rootDir}/gradle/backend-java.gradle"
+
+dependencies{
+    api(project(":forest-app:domain"))
+
+    implementation 'org.springframework:spring-context:6.1.5'
+}

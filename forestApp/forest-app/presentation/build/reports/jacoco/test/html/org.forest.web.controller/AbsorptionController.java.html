@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbsorptionController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">presentation</a> &gt; <a href="index.source.html" class="el_package">org.forest.web.controller</a> &gt; <span class="el_source">AbsorptionController.java</span></div><h1>AbsorptionController.java</h1><pre class="source lang-java linenums">package org.forest.web.controller;
+
+import org.forest.api.controller.AbsorptionApi;
+import org.forest.api.model.AbsorptionResult;
+import org.forest.api.model.SurfaceResult;
+import org.forest.port.driving.CO2AbsorptionUseCase;
+import org.forest.port.driving.ForestUseCase;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Optional;
+import java.util.UUID;
+
+@CrossOrigin(origins = &quot;*&quot;)
+@RestController
+@RequestMapping
+public class AbsorptionController implements AbsorptionApi {
+<span class="nc" id="L23">    private final Logger logger = LoggerFactory.getLogger(AbsorptionController.class);</span>
+
+    private final CO2AbsorptionUseCase co2AbsorptionService;
+    private final ForestUseCase forestService;
+
+    @Autowired
+<span class="nc" id="L29">    public AbsorptionController(CO2AbsorptionUseCase co2AbsorptionService, ForestUseCase forestService) {</span>
+<span class="nc" id="L30">        this.co2AbsorptionService = co2AbsorptionService;</span>
+<span class="nc" id="L31">        this.forestService = forestService;</span>
+<span class="nc" id="L32">    }</span>
+
+    @Override
+    public ResponseEntity&lt;SurfaceResult&gt; getRequiredSurface(Double co2Amount) {
+<span class="nc" id="L36">        double requiredSurface = co2AbsorptionService.getRequiredSurface(co2Amount);</span>
+<span class="nc" id="L37">        SurfaceResult result = new SurfaceResult();</span>
+<span class="nc" id="L38">        result.setCo2Amount(co2Amount);</span>
+<span class="nc" id="L39">        result.setRequiredSurfaceSqMeters(requiredSurface);</span>
+<span class="nc" id="L40">        return ResponseEntity.ok(result);</span>
+    }
+
+    private Optional&lt;UUID&gt; getOptionalUUID(String uuid) {
+        try {
+<span class="nc" id="L45">            return Optional.of(UUID.fromString(uuid));</span>
+<span class="nc" id="L46">        } catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L47">            logger.error(&quot;Error while parsing UUID&quot;, e);</span>
+<span class="nc" id="L48">            return Optional.empty();</span>
+        }
+    }
+} 
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.11.202310140853</span></div></body></html>
