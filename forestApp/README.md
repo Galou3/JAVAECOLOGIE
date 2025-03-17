@@ -102,4 +102,56 @@ curl -X PUT \
   }'
   
   curl http://localhost:8080/tree/{ID}
+
+
+curl -X POST \
+  http://localhost:8080/forest \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "type": "TEMPERATE",
+    "surface": 5000.0,
+    "trees": [
+      {
+        "birth": "2015-05-20",
+        "exposure": "SUNNY",
+        "species": "OAK",
+        "carbonStorageCapacity": 25.0
+      },
+      {
+        "birth": "2018-03-15",
+        "exposure": "MID_SHADOW",
+        "species": "FIR",
+        "carbonStorageCapacity": 18.5
+      }
+    ]
+  }'
+
+curl -X PUT \
+  http://localhost:8080/forest/VOTRE_ID_FORET \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "type": "TEMPERATE",
+    "surface": 7500.0,
+    "trees": [
+      {
+        "birth": "2015-05-20",
+        "exposure": "SUNNY",
+        "species": "OAK",
+        "carbonStorageCapacity": 25.0
+      },
+      {
+        "birth": "2018-03-15",
+        "exposure": "MID_SHADOW",
+        "species": "FIR",
+        "carbonStorageCapacity": 18.5
+      },
+      {
+        "birth": "2022-02-10",
+        "exposure": "SUNNY",
+        "species": "BEECH",
+        "carbonStorageCapacity": 15.0
+      }
+    ]
+  }'
+
 ```

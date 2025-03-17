@@ -19,6 +19,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import java.util.Collections;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -60,19 +61,6 @@ public class ForestController implements ForestApi {
     }
 
     @Override
-    public ResponseEntity<List<Species>> getForestSpecies(String id) {
-        return getOptionalUUID(id)
-                .map(uuid -> {
-                    Set<org.forest.domain.model.Species> speciesSet = forestService.getSpecies(uuid);
-                    List<Species> apiSpecies = speciesSet.stream()
-                            .map(s -> Species.valueOf(s.name()))
-                            .collect(Collectors.toList());
-                    return ResponseEntity.ok(apiSpecies);
-                })
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    @Override
     public ResponseEntity<List<Forest>> listForests() {
         List<Forest> forests = forestService.list().stream()
                 .map(this::mapToApi)
@@ -81,20 +69,46 @@ public class ForestController implements ForestApi {
     }
 
     @Override
-    public ResponseEntity<Forest> updateForest(String id, ForestInput forestInput) {
-        return getOptionalUUID(id)
-                .flatMap(forestService::get)
-                .map(existingForest -> {
-                    org.forest.domain.model.Forest toUpdate = new org.forest.domain.model.Forest(
-                            existingForest.id(),
-                            mapForestType(forestInput.getType().getValue()),
-                            mapTrees(forestInput.getTrees()),
-                            forestInput.getSurface()
-                    );
-                    org.forest.domain.model.Forest updated = forestService.update(toUpdate);
-                    return ResponseEntity.ok(mapToApi(updated));
-                })
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<org.forest.api.model.Forest> updateForest(String id, ForestInput forestInput) {
+        // Convertir l'ID string en UUID
+        Optional<UUID> optionalUUID = getOptionalUUID(id);
+        
+        if (optionalUUID.isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+        
+        UUID uuid = optionalUUID.get();
+        
+        try {
+            // Vérifier que la forêt existe
+            Optional<org.forest.domain.model.Forest> existingForest = forestService.get(uuid);
+            if (existingForest.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            // Convertir le ForestInput en Forest du domaine
+            org.forest.domain.model.Forest domainForest = mapToDomain(forestInput);
+            
+            // Créer une nouvelle forêt avec l'UUID existant
+            org.forest.domain.model.Forest forestToUpdate = new org.forest.domain.model.Forest(
+                uuid,
+                domainForest.type(),
+                domainForest.trees(),
+                domainForest.surface()
+            );
+            
+            // Mettre à jour la forêt
+            org.forest.domain.model.Forest updatedForest = forestService.update(forestToUpdate);
+            
+            // Convertir la forêt mise à jour en DTO et retourner la réponse
+            return ResponseEntity.ok(mapToApi(updatedForest));
+        } catch (IllegalArgumentException e) {
+            logger.error("Error updating forest", e);
+            return ResponseEntity.badRequest().build();
+        } catch (Exception e) {
+            logger.error("Unexpected error updating forest", e);
+            return ResponseEntity.internalServerError().build();
+        }
     }
 
     private Optional<UUID> getOptionalUUID(String uuid) {
@@ -107,10 +121,13 @@ public class ForestController implements ForestApi {
     }
 
     private org.forest.domain.model.Forest mapToDomain(ForestInput forestInput) {
+        // Convertir la liste d'arbres en s'assurant que chaque arbre a un ID
+        List<org.forest.domain.model.Tree> treesWithIds = mapTrees(forestInput.getTrees());
+        
         return new org.forest.domain.model.Forest(
                 null, // L'ID sera généré par le repository
                 mapForestType(forestInput.getType().getValue()),
-                mapTrees(forestInput.getTrees()),
+                treesWithIds,
                 forestInput.getSurface()
         );
     }
@@ -122,8 +139,11 @@ public class ForestController implements ForestApi {
     }
 
     private org.forest.domain.model.Tree mapTree(org.forest.api.model.Tree apiTree) {
+        // Générer un nouvel UUID si l'arbre n'en a pas
+        UUID treeId = (apiTree.getId() != null) ? apiTree.getId() : UUID.randomUUID();
+        
         return new org.forest.domain.model.Tree(
-                apiTree.getId(),
+                treeId, // Utilisez l'ID existant ou générez-en un nouveau
                 apiTree.getBirth(),
                 org.forest.domain.model.Species.valueOf(apiTree.getSpecies().getValue()),
                 org.forest.domain.model.Exposure.valueOf(apiTree.getExposure().getValue()),
