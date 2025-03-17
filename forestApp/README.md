@@ -1,17 +1,18 @@
-# Application de calcul d'absorption de CO2 par les forêts
+# 🌳 Application de calcul d'absorption de CO2 par les forêts
 
-Cette application met en œuvre une API REST permettant de gérer des arbres et des forêts ainsi que de calculer leur capacité d'absorption de CO2.
+> Application REST permettant de gérer des arbres et des forêts, avec fonctionnalité de calcul d'absorption de CO2 (en développement).
 
-## Description du projet
+## 📋 Description du projet
 
-L'application permet de :
-- Gérer des arbres (création, lecture, mise à jour, suppression)
-- Gérer des forêts (création, lecture, mise à jour, suppression)
-- Calculer la capacité d'absorption de CO2 d'une forêt en kg/an
-- Calculer la surface de forêt nécessaire pour absorber une quantité donnée de CO2
-- Obtenir la liste des espèces d'arbres présentes dans une forêt
+Cette application vous permet de :
+- 🌱 Gérer des arbres (création, lecture, mise à jour, suppression)
+- 🌲 Gérer des forêts (création, lecture, mise à jour, suppression)
+- 🌿 Visualiser les espèces d'arbres présentes dans une forêt
+- 🔄 *Fonctionnalités en cours de développement:*
+  - Calcul de la capacité d'absorption de CO2 d'une forêt en kg/an
+  - Calcul de la surface de forêt nécessaire pour absorber une quantité donnée de CO2
 
-## Architecture
+## 🏗️ Architecture
 
 L'application suit une architecture hexagonale (ports et adaptateurs) :
 
@@ -26,14 +27,16 @@ L'application suit une architecture hexagonale (ports et adaptateurs) :
 - **Presentation** : Contrôleurs REST implémentant l'API
 - **Application** : Point d'entrée de l'application
 
-## Algorithmique et modèle de calcul
+## 🧮 Modèle de calcul (en développement)
 
-Le calcul de l'absorption de CO2 par une forêt prend en compte :
+> ⚠️ **Note:** La fonctionnalité de calcul d'absorption de CO2 est actuellement en cours d'implémentation.
+
+Le modèle prévoit de prendre en compte :
 1. L'absorption individuelle de chaque arbre (carbonStorageCapacity)
 2. Un facteur de diversité : plus il y a d'espèces différentes, plus l'absorption est efficace
 3. L'impact du type de forêt : les forêts tropicales sont les plus efficaces, suivies des forêts tempérées et boréales
 
-## Installation et exécution
+## 🚀 Installation et exécution
 
 ### Prérequis
 - Java 21
@@ -54,33 +57,39 @@ gradle wrapper
 ./gradlew :forest-app:app:bootRun
 ```
 
-## Utilisation de l'API
+## 🔌 Utilisation de l'API
 
 Une fois l'application lancée, vous pouvez interagir avec l'API via les endpoints suivants :
 
-### Arbres (Tree)
-- `GET /tree` : Liste tous les arbres
-- `GET /tree/{id}` : Obtient les détails d'un arbre spécifique
-- `POST /tree` : Crée un nouvel arbre
-- `PUT /tree/{id}` : Met à jour un arbre existant
-- `DELETE /tree/{id}` : Supprime un arbre
+### 🌱 Arbres (Tree)
+| Méthode | Endpoint | Description |
+|---------|----------|-------------|
+| GET | `/tree` | Liste tous les arbres |
+| GET | `/tree/{id}` | Obtient les détails d'un arbre spécifique |
+| POST | `/tree` | Crée un nouvel arbre |
+| PUT | `/tree/{id}` | Met à jour un arbre existant |
+| DELETE | `/tree/{id}` | Supprime un arbre |
 
-### Forêts (Forest)
-- `GET /forest` : Liste toutes les forêts
-- `GET /forest/{id}` : Obtient les détails d'une forêt spécifique
-- `POST /forest` : Crée une nouvelle forêt
-- `PUT /forest/{id}` : Met à jour une forêt existante
-- `DELETE /forest/{id}` : Supprime une forêt
-- `GET /forest/{id}/species` : Liste toutes les espèces d'arbres dans une forêt
+### 🌲 Forêts (Forest)
+| Méthode | Endpoint | Description |
+|---------|----------|-------------|
+| GET | `/forest` | Liste toutes les forêts |
+| GET | `/forest/{id}` | Obtient les détails d'une forêt spécifique |
+| POST | `/forest` | Crée une nouvelle forêt |
+| PUT | `/forest/{id}` | Met à jour une forêt existante |
+| DELETE | `/forest/{id}` | Supprime une forêt |
+| GET | `/forest/{id}/species` | Liste toutes les espèces d'arbres dans une forêt |
 
-### Absorption de CO2
-- `GET /forest/{id}/absorption` : Calcule la capacité d'absorption de CO2 d'une forêt
-- `GET /absorption/required-surface?co2Amount=X` : Calcule la surface de forêt nécessaire pour absorber X kg de CO2 par an
+### 🌿 Absorption de CO2 (en développement)
+| Méthode | Endpoint | Description |
+|---------|----------|-------------|
+| GET | `/forest/{id}/absorption` | Calcule la capacité d'absorption de CO2 d'une forêt |
+| GET | `/absorption/required-surface?co2Amount=X` | Calcule la surface de forêt nécessaire pour absorber X kg de CO2 par an |
 
-### Exemple de requête
+## 📝 Exemples d'utilisation
+
+### Création d'un arbre
 ```bash
-curl localhost:8080/tree
-
 curl -X POST \
   http://localhost:8080/tree \
   -H 'Content-Type: application/json' \
@@ -90,7 +99,10 @@ curl -X POST \
     "species": "OAK",
     "carbonStorageCapacity": 35.5
   }'
+```
 
+### Mise à jour d'un arbre
+```bash
 curl -X PUT \
   http://localhost:8080/tree/{ID} \
   -H 'Content-Type: application/json' \
@@ -100,10 +112,10 @@ curl -X PUT \
     "species": "FIR",
     "carbonStorageCapacity": 30.5
   }'
-  
-  curl http://localhost:8080/tree/{ID}
+```
 
-
+### Création d'une forêt
+```bash
 curl -X POST \
   http://localhost:8080/forest \
   -H 'Content-Type: application/json' \

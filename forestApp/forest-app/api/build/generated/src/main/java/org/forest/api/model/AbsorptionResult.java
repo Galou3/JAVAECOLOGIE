@@ -19,7 +19,7 @@ import javax.annotation.Generated;
  * AbsorptionResult
  */
 
-@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-03-17T12:46:50.901899400+01:00[Europe/Paris]")
+@Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2025-03-17T16:23:41.231448500+01:00[Europe/Paris]")
 public class AbsorptionResult {
 
   private UUID forestId;

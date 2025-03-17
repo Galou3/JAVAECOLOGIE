@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="org.forest.web.TreeControllerTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2025-03-17T14:34:49" hostname="LENOVOLEGION" time="0.44">
+<testsuite name="org.forest.web.TreeControllerTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2025-03-17T15:23:54" hostname="LENOVOLEGION" time="0.432">
   <properties/>
-  <testcase name="shouldGetATreeById()" classname="org.forest.web.TreeControllerTest" time="0.44"/>
+  <testcase name="shouldGetATreeById()" classname="org.forest.web.TreeControllerTest" time="0.432"/>
   <system-out><![CDATA[
   .   ____          _            __ _ _
  /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
@@ -11,12 +11,12 @@
  =========|_|==============|___/=/_/_/_/
  :: Spring Boot ::                (v3.2.4)
 
-2025-03-17T15:34:47.182+01:00  INFO 120732 --- [    Test worker] org.forest.web.TreeControllerTest        : Starting TreeControllerTest using Java 21.0.6 with PID 120732 (started by gaelt in C:\Users\gaelt\OneDrive\Bureau\forestApp-1.0.0-SNAPSHOT\forestApp\forest-app\presentation)
-2025-03-17T15:34:47.184+01:00  INFO 120732 --- [    Test worker] org.forest.web.TreeControllerTest        : No active profile set, falling back to 1 default profile: "default"
-2025-03-17T15:34:49.039+01:00  INFO 120732 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
-2025-03-17T15:34:49.039+01:00  INFO 120732 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
-2025-03-17T15:34:49.045+01:00  INFO 120732 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 3 ms
-2025-03-17T15:34:49.139+01:00  INFO 120732 --- [    Test worker] org.forest.web.TreeControllerTest        : Started TreeControllerTest in 2.187 seconds (process running for 3.576)
+2025-03-17T16:23:52.901+01:00  INFO 142140 --- [    Test worker] org.forest.web.TreeControllerTest        : Starting TreeControllerTest using Java 21.0.6 with PID 142140 (started by gaelt in C:\Users\gaelt\OneDrive\Bureau\DOSSIER\JAVAECOLOGIE\forestApp\forest-app\presentation)
+2025-03-17T16:23:52.904+01:00  INFO 142140 --- [    Test worker] org.forest.web.TreeControllerTest        : No active profile set, falling back to 1 default profile: "default"
+2025-03-17T16:23:54.756+01:00  INFO 142140 --- [    Test worker] o.s.b.t.m.w.SpringBootMockServletContext : Initializing Spring TestDispatcherServlet ''
+2025-03-17T16:23:54.757+01:00  INFO 142140 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2025-03-17T16:23:54.761+01:00  INFO 142140 --- [    Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 2 ms
+2025-03-17T16:23:54.834+01:00  INFO 142140 --- [    Test worker] org.forest.web.TreeControllerTest        : Started TreeControllerTest in 2.181 seconds (process running for 3.581)
 ]]></system-out>
   <system-err><![CDATA[WARNING: A Java agent has been loaded dynamically (C:\Users\gaelt\.gradle\caches\modules-2\files-2.1\net.bytebuddy\byte-buddy-agent\1.14.11\f9cb566608fbac6bc7bf54901a7aa11543a989ee\byte-buddy-agent-1.14.11.jar)
 WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
